@@ -1,0 +1,151 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Eye, Hand, Phone, Wallet as WalletIcon, PauseCircle } from "lucide-react";
+import { AppShell } from "@/components/BottomTabs";
+import { useDemo } from "@/lib/prototype-state";
+import { dashboardStats, weeklyContacts, DAILY_SPEND } from "@/data/mockData";
+
+export const Route = createFileRoute("/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Your results — AdBoost" },
+      {
+        name: "description",
+        content: "See how many people saw your business, tapped your ad, and got in touch this week.",
+      },
+      { property: "og:title", content: "Your results — AdBoost" },
+      {
+        property: "og:description",
+        content: "People who saw you, people who tapped, and people who got in touch.",
+      },
+    ],
+  }),
+  component: Dashboard,
+});
+
+function Dashboard() {
+  const { state, hydrated } = useDemo();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (hydrated && !state.onboarded) navigate({ to: "/" });
+  }, [hydrated, state.onboarded, navigate]);
+
+  const contacts = dashboardStats.calls + dashboardStats.whatsapps;
+  const live = state.balance > 0 && !state.paused;
+  const daysLeft = Math.floor(state.balance / DAILY_SPEND);
+  const max = Math.max(...weeklyContacts.map((d) => d.contacts), 1);
+
+  return (
+    <AppShell title="Your results">
+      <span className="inline-block rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
+        Simulated results — demo only
+      </span>
+
+      <div
+        className={`rounded-3xl p-5 ${
+          live ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"
+        }`}
+      >
+        <div className="flex min-w-0 items-center gap-3">
+          {live ? (
+            <span className="relative flex h-3 w-3 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-foreground opacity-60" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-primary-foreground" />
+            </span>
+          ) : (
+            <PauseCircle className="h-5 w-5 shrink-0" />
+          )}
+          <p className="min-w-0 text-lg font-bold">
+            {state.paused
+              ? "Your ads are paused"
+              : state.balance > 0
+                ? "Your ads are live"
+                : "Add credit to start your ads"}
+          </p>
+        </div>
+        <p className="mt-2 text-sm opacity-90">
+          {live
+            ? `We're spending €${DAILY_SPEND} a day on Facebook, Instagram and Google for you. Enough for ${daysLeft} more ${daysLeft === 1 ? "day" : "days"}.`
+            : "Nothing is being spent right now. You can start again whenever you want."}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Metric
+          icon={Eye}
+          label="People who saw you"
+          value={dashboardStats.peopleReached.toLocaleString("nl-NL")}
+          note="in your area this week"
+        />
+        <Metric
+          icon={Hand}
+          label="People who tapped"
+          value={dashboardStats.taps.toString()}
+          note="wanted to know more"
+        />
+        <Metric
+          icon={Phone}
+          label="People who got in touch"
+          value={contacts.toString()}
+          note={`${dashboardStats.calls} calls · ${dashboardStats.whatsapps} WhatsApp`}
+        />
+        <Metric
+          icon={WalletIcon}
+          label="Credit left"
+          value={`€${state.balance}`}
+          note={`about ${daysLeft} ${daysLeft === 1 ? "day" : "days"} of ads`}
+        />
+      </div>
+
+      <div className="rounded-3xl border border-border bg-card p-5">
+        <p className="font-semibold text-foreground">People who got in touch this week</p>
+        <div className="mt-6 flex items-end justify-between gap-2">
+          {weeklyContacts.map((d) => (
+            <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
+              <span className="text-xs font-semibold text-foreground">{d.contacts}</span>
+              <div
+                className="w-full rounded-t-xl bg-primary/80"
+                style={{ height: `${Math.max((d.contacts / max) * 110, 6)}px` }}
+              />
+              <span className="text-xs text-muted-foreground">{d.day}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-3xl border border-border bg-card p-5">
+        <p className="font-semibold text-foreground">Where your money goes</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Every euro of your credit is spent on showing your ads on Facebook, Instagram and
+          Google. You can pause at any time in{" "}
+          <Link to="/settings" className="font-medium text-primary underline">
+            Settings
+          </Link>{" "}
+          and your remaining credit simply stays where it is.
+        </p>
+      </div>
+    </AppShell>
+  );
+}
+
+function Metric({
+  icon: Icon,
+  label,
+  value,
+  note,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  note: string;
+}) {
+  return (
+    <div className="rounded-3xl border border-border bg-card p-5">
+      <Icon className="h-5 w-5 text-primary" />
+      <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">{value}</p>
+      <p className="mt-1 text-sm font-medium text-foreground">{label}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{note}</p>
+    </div>
+  );
+}
