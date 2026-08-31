@@ -122,7 +122,7 @@ function Onboarding() {
                   max={50}
                   step={1}
                   value={[a.radiusKm]}
-                  onValueChange={([v]) => updateAnswers({ radiusKm: v })}
+                  onValueChange={(v) => updateAnswers({ radiusKm: v[0] ?? 10 })}
                 />
               </div>
             </Question>

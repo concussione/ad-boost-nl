@@ -44,7 +44,7 @@ function daysLabel(amount: number) {
 function WalletPage() {
   const { state, hydrated, topUp } = useDemo();
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<number>(TOPUP_PRESETS[0]);
+  const [selected, setSelected] = useState<number>(TOPUP_PRESETS[0] ?? 200);
   const [custom, setCustom] = useState("");
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
