@@ -215,6 +215,15 @@ function Onboarding() {
                 placeholder="06 12 34 56 78"
                 className="h-14 rounded-2xl text-base"
               />
+              <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4">
+                <Checkbox
+                  checked={!!a.phone && a.whatsapp === a.phone}
+                  onCheckedChange={(c) =>
+                    updateAnswers({ whatsapp: c ? a.phone : "" })
+                  }
+                />
+                <span className="text-base text-foreground">Same as my phone number</span>
+              </label>
             </Question>
           )}
 
