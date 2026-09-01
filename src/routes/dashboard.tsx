@@ -160,8 +160,7 @@ function Dashboard() {
         <p className="font-semibold text-foreground">Where your money goes</p>
         <p className="mt-2 text-sm text-muted-foreground">
           Your credit pays for two things: the ads themselves on Facebook, Instagram and Google, and a small service fee
-          for us to set them up and look after them. We show you exactly what was spent. Settings and your remaining
-          credit stays where it is. You can pause at any time in{" "}
+          for us to set them up and look after them. We show you exactly what was spent. You can pause at any time in{" "}
           <Link to="/settings" className="font-medium text-primary underline">
             Settings
           </Link>{" "}
