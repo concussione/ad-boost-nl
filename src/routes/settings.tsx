@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { MessageCircle, RotateCcw } from "lucide-react";
+import { MessageCircle, RotateCcw, Store, Wallet, Megaphone, LayoutDashboard } from "lucide-react";
 import { AppShell } from "@/components/BottomTabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -125,6 +125,16 @@ function SettingsPage() {
       </div>
 
       <div className="rounded-3xl border border-border bg-card p-5">
+        <p className="font-semibold text-foreground">How this works</p>
+        <ol className="mt-4 space-y-3">
+          <Step number={1} icon={Store} text="You tell us about your business" />
+          <Step number={2} icon={Wallet} text="You add credit" />
+          <Step number={3} icon={Megaphone} text="We build and run your ads on Facebook, Instagram and Google" />
+          <Step number={4} icon={LayoutDashboard} text="You see the results here, and you can pause anytime" />
+        </ol>
+      </div>
+
+      <div className="rounded-3xl border border-border bg-card p-5">
         <p className="font-semibold text-foreground">Need a hand?</p>
         <p className="mt-1 text-sm text-muted-foreground">
           Message a real person. We usually reply the same day.
@@ -166,5 +176,25 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <p className="mb-2 text-sm text-muted-foreground">{label}</p>
       {children}
     </div>
+  );
+}
+
+function Step({
+  number,
+  icon: Icon,
+  text,
+}: {
+  number: number;
+  icon: React.ElementType;
+  text: string;
+}) {
+  return (
+    <li className="flex items-start gap-3">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
+        {number}
+      </span>
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+      <span className="text-sm text-foreground">{text}</span>
+    </li>
   );
 }
