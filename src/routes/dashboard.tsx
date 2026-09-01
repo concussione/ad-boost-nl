@@ -26,15 +26,31 @@ export const Route = createFileRoute("/dashboard")({
 function Dashboard() {
   const { state, hydrated } = useDemo();
   const navigate = useNavigate();
+  const [celebrate, setCelebrate] = useState(false);
 
   useEffect(() => {
     if (hydrated && !state.onboarded) navigate({ to: "/" });
   }, [hydrated, state.onboarded, navigate]);
 
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem("adboost-celebrate")) {
+        sessionStorage.removeItem("adboost-celebrate");
+        setCelebrate(true);
+        const t = setTimeout(() => setCelebrate(false), 4000);
+        return () => clearTimeout(t);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const hasCredit = state.balance > 0;
   const contacts = dashboardStats.calls + dashboardStats.whatsapps;
-  const live = state.balance > 0 && !state.paused;
+  const live = hasCredit && !state.paused;
   const daysLeft = Math.floor(state.balance / DAILY_SPEND);
   const max = Math.max(...weeklyContacts.map((d) => d.contacts), 1);
+  const dash = "—";
 
   return (
     <AppShell title="Your results">
@@ -42,8 +58,17 @@ function Dashboard() {
         Simulated results — demo only
       </span>
 
+      {celebrate && (
+        <div className="animate-in fade-in slide-in-from-top-2 rounded-3xl border-2 border-primary bg-primary/5 p-5 duration-500">
+          <p className="text-lg font-bold text-foreground">Your ads are starting now 🎉</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your credit is in. Below is what your ads are bringing in.
+          </p>
+        </div>
+      )}
+
       <div
-        className={`rounded-3xl p-5 ${
+        className={`rounded-3xl p-5 transition-colors duration-500 ${
           live ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"
         }`}
       >
