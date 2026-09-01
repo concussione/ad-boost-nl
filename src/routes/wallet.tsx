@@ -170,6 +170,11 @@ function WalletPage() {
                   topUp(amount);
                   setDone(true);
                   setCustom("");
+                  try {
+                    sessionStorage.setItem("adboost-celebrate", "1");
+                  } catch {
+                    /* ignore */
+                  }
                 }}
               >
                 Simulate payment
