@@ -182,11 +182,13 @@ function WalletPage() {
             </div>
           ) : (
             <Button
-              variant="secondary"
               className="h-14 w-full rounded-2xl text-base font-semibold"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                navigate({ to: "/dashboard" });
+              }}
             >
-              Done
+              See my results
             </Button>
           )}
         </DialogContent>
