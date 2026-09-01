@@ -33,16 +33,17 @@ function Dashboard() {
   }, [hydrated, state.onboarded, navigate]);
 
   useEffect(() => {
+    let flagged = false;
     try {
-      if (sessionStorage.getItem("adboost-celebrate")) {
-        sessionStorage.removeItem("adboost-celebrate");
-        setCelebrate(true);
-        const t = setTimeout(() => setCelebrate(false), 4000);
-        return () => clearTimeout(t);
-      }
+      flagged = !!sessionStorage.getItem("adboost-celebrate");
+      if (flagged) sessionStorage.removeItem("adboost-celebrate");
     } catch {
       /* ignore */
     }
+    if (!flagged) return undefined;
+    setCelebrate(true);
+    const t = setTimeout(() => setCelebrate(false), 4000);
+    return () => clearTimeout(t);
   }, []);
 
   const hasCredit = state.balance > 0;
