@@ -92,52 +92,73 @@ function Dashboard() {
         <p className="mt-2 text-sm opacity-90">
           {live
             ? `We're spending €${DAILY_SPEND} a day on Facebook, Instagram and Google for you. Enough for ${daysLeft} more ${daysLeft === 1 ? "day" : "days"}.`
-            : "Nothing is being spent right now. You can start again whenever you want."}
+            : hasCredit
+              ? "Nothing is being spent right now. You can start again whenever you want."
+              : "Your ads haven't started yet. Add credit and we'll start showing your business to people nearby."}
         </p>
+        {!hasCredit && (
+          <Link
+            to="/wallet"
+            className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary px-6 text-base font-semibold text-primary-foreground"
+          >
+            Add credit
+          </Link>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <Metric
           icon={Eye}
           label="People who saw you"
-          value={dashboardStats.peopleReached.toLocaleString("nl-NL")}
-          note="in your area this week"
+          value={hasCredit ? dashboardStats.peopleReached.toLocaleString("nl-NL") : dash}
+          note={hasCredit ? "in your area this week" : "starts when your ads run"}
         />
         <Metric
           icon={Hand}
           label="People who tapped"
-          value={dashboardStats.taps.toString()}
-          note="wanted to know more"
+          value={hasCredit ? dashboardStats.taps.toString() : dash}
+          note={hasCredit ? "wanted to know more" : "starts when your ads run"}
         />
         <Metric
           icon={Phone}
           label="People who got in touch"
-          value={contacts.toString()}
-          note={`${dashboardStats.calls} calls · ${dashboardStats.whatsapps} WhatsApp`}
+          value={hasCredit ? contacts.toString() : dash}
+          note={
+            hasCredit
+              ? `${dashboardStats.calls} calls · ${dashboardStats.whatsapps} WhatsApp`
+              : "starts when your ads run"
+          }
         />
         <Metric
           icon={WalletIcon}
           label="Credit left"
           value={`€${state.balance}`}
-          note={`about ${daysLeft} ${daysLeft === 1 ? "day" : "days"} of ads`}
+          note={
+            hasCredit
+              ? `about ${daysLeft} ${daysLeft === 1 ? "day" : "days"} of ads`
+              : "no credit added yet"
+          }
         />
       </div>
 
-      <div className="rounded-3xl border border-border bg-card p-5">
-        <p className="font-semibold text-foreground">People who got in touch this week</p>
-        <div className="mt-6 flex items-end justify-between gap-2">
-          {weeklyContacts.map((d) => (
-            <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
-              <span className="text-xs font-semibold text-foreground">{d.contacts}</span>
-              <div
-                className="w-full rounded-t-xl bg-primary/80"
-                style={{ height: `${Math.max((d.contacts / max) * 110, 6)}px` }}
-              />
-              <span className="text-xs text-muted-foreground">{d.day}</span>
-            </div>
-          ))}
+      {hasCredit && (
+        <div className="rounded-3xl border border-border bg-card p-5">
+          <p className="font-semibold text-foreground">People who got in touch this week</p>
+          <div className="mt-6 flex items-end justify-between gap-2">
+            {weeklyContacts.map((d) => (
+              <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
+                <span className="text-xs font-semibold text-foreground">{d.contacts}</span>
+                <div
+                  className="w-full rounded-t-xl bg-primary/80 transition-all duration-700"
+                  style={{ height: `${Math.max((d.contacts / max) * 110, 6)}px` }}
+                />
+                <span className="text-xs text-muted-foreground">{d.day}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
 
       <div className="rounded-3xl border border-border bg-card p-5">
         <p className="font-semibold text-foreground">Where your money goes</p>
