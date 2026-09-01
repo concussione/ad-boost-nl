@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Eye, Hand, Phone, Wallet as WalletIcon, PauseCircle } from "lucide-react";
 import { AppShell } from "@/components/BottomTabs";
 import { useDemo } from "@/lib/prototype-state";
