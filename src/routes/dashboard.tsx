@@ -134,11 +134,7 @@ function Dashboard() {
           icon={WalletIcon}
           label="Credit left"
           value={`€${state.balance}`}
-          note={
-            hasCredit
-              ? `about ${daysLeft} ${daysLeft === 1 ? "day" : "days"} of ads`
-              : "no credit added yet"
-          }
+          note={hasCredit ? `about ${daysLeft} ${daysLeft === 1 ? "day" : "days"} of ads` : "no credit added yet"}
         />
       </div>
 
@@ -160,12 +156,12 @@ function Dashboard() {
         </div>
       )}
 
-
       <div className="rounded-3xl border border-border bg-card p-5">
         <p className="font-semibold text-foreground">Where your money goes</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          Every euro of your credit is spent on showing your ads on Facebook, Instagram and
-          Google. You can pause at any time in{" "}
+          Your credit pays for two things: the ads themselves on Facebook, Instagram and Google, and a small service fee
+          for us to set them up and look after them. We show you exactly what was spent. Settings and your remaining
+          credit stays where it is. You can pause at any time in{" "}
           <Link to="/settings" className="font-medium text-primary underline">
             Settings
           </Link>{" "}
