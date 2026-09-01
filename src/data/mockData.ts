@@ -19,6 +19,8 @@ export const dashboardStats = {
   taps: 298,
   calls: 18,
   whatsapps: 11,
+  spent: 140,
+  bestPlatform: "Instagram",
 };
 
 export const weeklyContacts = [
@@ -42,6 +44,10 @@ export const mockTransactions: Transaction[] = [
   { id: "t1", date: "28 Aug", label: "Ads yesterday", amount: -20 },
   { id: "t2", date: "27 Aug", label: "Ads", amount: -20 },
   { id: "t3", date: "26 Aug", label: "Ads", amount: -20 },
+  { id: "t4", date: "25 Aug", label: "Ads", amount: -20 },
+  { id: "t5", date: "24 Aug", label: "Ads", amount: -20 },
+  { id: "t6", date: "23 Aug", label: "Ads", amount: -20 },
+  { id: "t7", date: "22 Aug", label: "Ads", amount: -20 },
 ];
 
 export const supportWhatsApp = "+31 6 12 34 56 78";

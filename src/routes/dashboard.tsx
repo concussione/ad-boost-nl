@@ -52,6 +52,7 @@ function Dashboard() {
   const daysLeft = Math.floor(state.balance / DAILY_SPEND);
   const max = Math.max(...weeklyContacts.map((d) => d.contacts), 1);
   const dash = "—";
+  const costPerContact = contacts > 0 ? Math.round(dashboardStats.spent / contacts) : 0;
 
   return (
     <AppShell title="Your results">
@@ -139,34 +140,46 @@ function Dashboard() {
       </div>
 
       {hasCredit && (
-        <div className="rounded-3xl border border-border bg-card p-5">
-          <p className="font-semibold text-foreground">People who got in touch this week</p>
-          <div className="mt-6 flex items-end justify-between gap-2">
-            {weeklyContacts.map((d) => (
-              <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
-                <span className="text-xs font-semibold text-foreground">{d.contacts}</span>
-                <div
-                  className="w-full rounded-t-xl bg-primary/80 transition-all duration-700"
-                  style={{ height: `${Math.max((d.contacts / max) * 110, 6)}px` }}
-                />
-                <span className="text-xs text-muted-foreground">{d.day}</span>
-              </div>
-            ))}
+        <>
+          <div className="rounded-3xl border border-highlight bg-highlight p-5 text-highlight-foreground">
+            <p className="font-semibold text-highlight-foreground">Your week in plain English</p>
+            <p className="mt-2 text-sm text-highlight-foreground/90">
+              {contacts} people got in touch with your salon this week — {dashboardStats.calls} calls and{" "}
+              {dashboardStats.whatsapps} WhatsApp messages. You spent €{dashboardStats.spent}, so each person who
+              contacted you cost about €{costPerContact}. Most of them came from {dashboardStats.bestPlatform}.
+            </p>
           </div>
-        </div>
-      )}
 
-      <div className="rounded-3xl border border-border bg-card p-5">
-        <p className="font-semibold text-foreground">Where your money goes</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Your credit pays for two things: the ads themselves on Facebook, Instagram and Google, and a small service fee
-          for us to set them up and look after them. We show you exactly what was spent. You can pause at any time in{" "}
-          <Link to="/settings" className="font-medium text-primary underline">
-            Settings
-          </Link>{" "}
-          and your remaining credit simply stays where it is.
-        </p>
-      </div>
+          <div className="rounded-3xl border border-border bg-card p-5">
+            <p className="font-semibold text-foreground">Where your money goes</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Your credit pays for two things: the ads themselves on Facebook, Instagram and Google, and a small service
+              fee for us to set them up and look after them. We show you exactly what was spent. You can pause at any
+              time in{" "}
+              <Link to="/settings" className="font-medium text-primary underline">
+                Settings
+              </Link>{" "}
+              and your remaining credit simply stays where it is.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-border bg-card p-5">
+            <p className="font-semibold text-foreground">People who got in touch this week</p>
+            <div className="mt-6 flex items-end justify-between gap-2">
+              {weeklyContacts.map((d) => (
+                <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
+                  <span className="text-xs font-semibold text-foreground">{d.contacts}</span>
+                  <div
+                    className="w-full rounded-t-xl bg-primary/80 transition-all duration-700"
+                    style={{ height: `${Math.max((d.contacts / max) * 110, 6)}px` }}
+                  />
+                  <span className="text-xs text-muted-foreground">{d.day}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </AppShell>
   );
 }
