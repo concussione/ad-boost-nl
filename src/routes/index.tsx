@@ -56,8 +56,15 @@ function Welcome() {
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 pb-10 pt-10">
         <p className="text-sm font-semibold tracking-wide text-primary">AdBoost</p>
 
+        <h1 className="mt-5 text-3xl font-bold leading-tight tracking-tight text-foreground">
+          €20 a day gets your business seen locally
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+          No setup, no contracts, and you never spend more than you put in.
+        </p>
+
         <div
-          className="mt-6 flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth"
+          className="mt-7 snap-x snap-mandatory overflow-x-auto scroll-smooth"
           onScroll={(e) => {
             const el = e.currentTarget;
             setIndex(Math.round(el.scrollLeft / el.clientWidth));
