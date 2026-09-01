@@ -89,7 +89,7 @@ function Welcome() {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-center gap-2">
+        <div className="mt-4 flex flex-1 items-start justify-center gap-2">
           {cards.map((c, i) => (
             <span
               key={c.title}
