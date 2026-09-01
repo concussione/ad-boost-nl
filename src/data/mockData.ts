@@ -15,8 +15,8 @@ export const BUSINESS_TYPES = [
 export const TOPUP_PRESETS = [200, 400, 600];
 
 export const dashboardStats = {
-  peopleReached: 4820,
-  taps: 312,
+  peopleReached: 12340,
+  taps: 298,
   calls: 18,
   whatsapps: 11,
 };

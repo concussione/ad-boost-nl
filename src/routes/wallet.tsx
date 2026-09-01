@@ -170,6 +170,11 @@ function WalletPage() {
                   topUp(amount);
                   setDone(true);
                   setCustom("");
+                  try {
+                    sessionStorage.setItem("adboost-celebrate", "1");
+                  } catch {
+                    /* ignore */
+                  }
                 }}
               >
                 Simulate payment
@@ -177,11 +182,13 @@ function WalletPage() {
             </div>
           ) : (
             <Button
-              variant="secondary"
               className="h-14 w-full rounded-2xl text-base font-semibold"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                navigate({ to: "/dashboard" });
+              }}
             >
-              Done
+              See my results
             </Button>
           )}
         </DialogContent>

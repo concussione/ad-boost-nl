@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Eye, Hand, Phone, Wallet as WalletIcon, PauseCircle } from "lucide-react";
 import { AppShell } from "@/components/BottomTabs";
 import { useDemo } from "@/lib/prototype-state";
@@ -26,15 +26,32 @@ export const Route = createFileRoute("/dashboard")({
 function Dashboard() {
   const { state, hydrated } = useDemo();
   const navigate = useNavigate();
+  const [celebrate, setCelebrate] = useState(false);
 
   useEffect(() => {
     if (hydrated && !state.onboarded) navigate({ to: "/" });
   }, [hydrated, state.onboarded, navigate]);
 
+  useEffect(() => {
+    let flagged = false;
+    try {
+      flagged = !!sessionStorage.getItem("adboost-celebrate");
+      if (flagged) sessionStorage.removeItem("adboost-celebrate");
+    } catch {
+      /* ignore */
+    }
+    if (!flagged) return undefined;
+    setCelebrate(true);
+    const t = setTimeout(() => setCelebrate(false), 4000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const hasCredit = state.balance > 0;
   const contacts = dashboardStats.calls + dashboardStats.whatsapps;
-  const live = state.balance > 0 && !state.paused;
+  const live = hasCredit && !state.paused;
   const daysLeft = Math.floor(state.balance / DAILY_SPEND);
   const max = Math.max(...weeklyContacts.map((d) => d.contacts), 1);
+  const dash = "—";
 
   return (
     <AppShell title="Your results">
@@ -42,8 +59,17 @@ function Dashboard() {
         Simulated results — demo only
       </span>
 
+      {celebrate && (
+        <div className="animate-in fade-in slide-in-from-top-2 rounded-3xl border-2 border-primary bg-primary/5 p-5 duration-500">
+          <p className="text-lg font-bold text-foreground">Your ads are starting now 🎉</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your credit is in. Below is what your ads are bringing in.
+          </p>
+        </div>
+      )}
+
       <div
-        className={`rounded-3xl p-5 ${
+        className={`rounded-3xl p-5 transition-colors duration-500 ${
           live ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"
         }`}
       >
@@ -67,52 +93,73 @@ function Dashboard() {
         <p className="mt-2 text-sm opacity-90">
           {live
             ? `We're spending €${DAILY_SPEND} a day on Facebook, Instagram and Google for you. Enough for ${daysLeft} more ${daysLeft === 1 ? "day" : "days"}.`
-            : "Nothing is being spent right now. You can start again whenever you want."}
+            : hasCredit
+              ? "Nothing is being spent right now. You can start again whenever you want."
+              : "Your ads haven't started yet. Add credit and we'll start showing your business to people nearby."}
         </p>
+        {!hasCredit && (
+          <Link
+            to="/wallet"
+            className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-2xl bg-primary px-6 text-base font-semibold text-primary-foreground"
+          >
+            Add credit
+          </Link>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <Metric
           icon={Eye}
           label="People who saw you"
-          value={dashboardStats.peopleReached.toLocaleString("nl-NL")}
-          note="in your area this week"
+          value={hasCredit ? dashboardStats.peopleReached.toLocaleString("nl-NL") : dash}
+          note={hasCredit ? "in your area this week" : "starts when your ads run"}
         />
         <Metric
           icon={Hand}
           label="People who tapped"
-          value={dashboardStats.taps.toString()}
-          note="wanted to know more"
+          value={hasCredit ? dashboardStats.taps.toString() : dash}
+          note={hasCredit ? "wanted to know more" : "starts when your ads run"}
         />
         <Metric
           icon={Phone}
           label="People who got in touch"
-          value={contacts.toString()}
-          note={`${dashboardStats.calls} calls · ${dashboardStats.whatsapps} WhatsApp`}
+          value={hasCredit ? contacts.toString() : dash}
+          note={
+            hasCredit
+              ? `${dashboardStats.calls} calls · ${dashboardStats.whatsapps} WhatsApp`
+              : "starts when your ads run"
+          }
         />
         <Metric
           icon={WalletIcon}
           label="Credit left"
           value={`€${state.balance}`}
-          note={`about ${daysLeft} ${daysLeft === 1 ? "day" : "days"} of ads`}
+          note={
+            hasCredit
+              ? `about ${daysLeft} ${daysLeft === 1 ? "day" : "days"} of ads`
+              : "no credit added yet"
+          }
         />
       </div>
 
-      <div className="rounded-3xl border border-border bg-card p-5">
-        <p className="font-semibold text-foreground">People who got in touch this week</p>
-        <div className="mt-6 flex items-end justify-between gap-2">
-          {weeklyContacts.map((d) => (
-            <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
-              <span className="text-xs font-semibold text-foreground">{d.contacts}</span>
-              <div
-                className="w-full rounded-t-xl bg-primary/80"
-                style={{ height: `${Math.max((d.contacts / max) * 110, 6)}px` }}
-              />
-              <span className="text-xs text-muted-foreground">{d.day}</span>
-            </div>
-          ))}
+      {hasCredit && (
+        <div className="rounded-3xl border border-border bg-card p-5">
+          <p className="font-semibold text-foreground">People who got in touch this week</p>
+          <div className="mt-6 flex items-end justify-between gap-2">
+            {weeklyContacts.map((d) => (
+              <div key={d.day} className="flex flex-1 flex-col items-center gap-2">
+                <span className="text-xs font-semibold text-foreground">{d.contacts}</span>
+                <div
+                  className="w-full rounded-t-xl bg-primary/80 transition-all duration-700"
+                  style={{ height: `${Math.max((d.contacts / max) * 110, 6)}px` }}
+                />
+                <span className="text-xs text-muted-foreground">{d.day}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
 
       <div className="rounded-3xl border border-border bg-card p-5">
         <p className="font-semibold text-foreground">Where your money goes</p>
