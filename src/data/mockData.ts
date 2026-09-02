@@ -1,6 +1,56 @@
 // All demo numbers live here. Edit freely — nothing is fetched from a server.
 
-export const DAILY_SPEND = 20; // € of ad spend per day
+export type Package = {
+  id: "start" | "growth" | "full";
+  name: string;
+  monthlyFee: number; // € per month, our fee
+  adBudget: number; // € per month that goes to advertising
+  description: string;
+  reachLow: number;
+  reachHigh: number;
+  mostChosen?: boolean;
+};
+
+export const PACKAGES: Package[] = [
+  {
+    id: "start",
+    name: "Start",
+    monthlyFee: 99,
+    adBudget: 300,
+    description: "For a quiet local area or a single service.",
+    reachLow: 8000,
+    reachHigh: 15000,
+  },
+  {
+    id: "growth",
+    name: "Growth",
+    monthlyFee: 149,
+    adBudget: 600,
+    description: "For a normal town or city area.",
+    reachLow: 16000,
+    reachHigh: 30000,
+    mostChosen: true,
+  },
+  {
+    id: "full",
+    name: "Full",
+    monthlyFee: 249,
+    adBudget: 1200,
+    description: "For a competitive area or several services.",
+    reachLow: 32000,
+    reachHigh: 60000,
+  },
+];
+
+export const euro = (n: number) => `€${n.toLocaleString("en-US")}`;
+
+/** Nearest tier at or below the amount; below the smallest tier we use the smallest. */
+export function tierForAmount(amount: number): Package {
+  const sorted = [...PACKAGES].sort((a, b) => a.adBudget - b.adBudget);
+  let match = sorted[0]!;
+  for (const p of sorted) if (amount >= p.adBudget) match = p;
+  return match;
+}
 
 export const BUSINESS_TYPES = [
   { value: "restaurant", label: "Restaurant or café" },
@@ -12,7 +62,6 @@ export const BUSINESS_TYPES = [
   { value: "other", label: "Something else" },
 ];
 
-export const TOPUP_PRESETS = [200, 400, 600];
 
 export const dashboardStats = {
   peopleReached: 12340,
