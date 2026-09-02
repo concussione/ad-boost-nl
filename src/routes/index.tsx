@@ -1,8 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ClipboardList, Wallet, LineChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDemo } from "@/lib/prototype-state";
+import { strings } from "@/data/strings";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,11 +54,11 @@ function Welcome() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 pb-10 pt-10">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-5 pb-8 pt-8">
         <p className="text-sm font-semibold tracking-wide text-primary">AdBoost</p>
 
         <h1 className="mt-5 text-3xl font-bold leading-tight tracking-tight text-foreground">
-          €20 a day gets your business seen locally
+          Get your business seen locally
         </h1>
         <p className="mt-3 text-base leading-relaxed text-muted-foreground">
           No setup, no contracts, and you never spend more than you put in.
@@ -111,6 +112,14 @@ function Welcome() {
         >
           Get started
         </Button>
+
+        <Link
+          to="/pricing"
+          search={{ from: "welcome" as const }}
+          className="mt-4 text-center text-base font-medium text-primary underline"
+        >
+          {strings.welcome.pricingLink}
+        </Link>
       </div>
     </div>
   );
