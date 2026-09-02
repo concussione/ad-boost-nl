@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Eye, Hand, Phone, Wallet as WalletIcon, PauseCircle } from "lucide-react";
 import { AppShell } from "@/components/BottomTabs";
 import { useDemo } from "@/lib/prototype-state";
-import { dashboardStats, weeklyContacts, DAILY_SPEND } from "@/data/mockData";
+import { dashboardStats, weeklyContacts } from "@/data/mockData";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -49,7 +49,6 @@ function Dashboard() {
   const hasCredit = state.balance > 0;
   const contacts = dashboardStats.calls + dashboardStats.whatsapps;
   const live = hasCredit && !state.paused;
-  const daysLeft = Math.floor(state.balance / DAILY_SPEND);
   const max = Math.max(...weeklyContacts.map((d) => d.contacts), 1);
   const dash = "—";
   const costPerContact = contacts > 0 ? Math.round(dashboardStats.spent / contacts) : 0;
@@ -93,7 +92,7 @@ function Dashboard() {
         </div>
         <p className="mt-2 text-sm opacity-90">
           {live
-            ? `We're spending €${DAILY_SPEND} a day on Facebook, Instagram and Google for you. Enough for ${daysLeft} more ${daysLeft === 1 ? "day" : "days"}.`
+            ? `We're running your ads on Facebook, Instagram and Google. €${state.balance} is left in your package.`
             : hasCredit
               ? "Nothing is being spent right now. You can start again whenever you want."
               : "Your ads haven't started yet. Add credit and we'll start showing your business to people nearby."}
@@ -135,7 +134,7 @@ function Dashboard() {
           icon={WalletIcon}
           label="Credit left"
           value={`€${state.balance}`}
-          note={hasCredit ? `about ${daysLeft} ${daysLeft === 1 ? "day" : "days"} of ads` : "no credit added yet"}
+          note={hasCredit ? "left for your ads" : "nothing added yet"}
         />
       </div>
 

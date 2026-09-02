@@ -19,6 +19,7 @@ export type DemoState = {
   balance: number;
   transactions: Transaction[];
   paused: boolean;
+  selectedPackage: string | null;
 };
 
 const emptyAnswers: Answers = {
@@ -39,6 +40,7 @@ const initialState: DemoState = {
   balance: 0,
   transactions: mockTransactions,
   paused: false,
+  selectedPackage: null,
 };
 
 const STORAGE_KEY = "adboost-demo-v1";
@@ -95,7 +97,7 @@ export function DemoProvider({ children }: { children: React.ReactNode }) {
                 day: "numeric",
                 month: "short",
               }),
-              label: "Credit added (demo)",
+              label: "Added to package (demo)",
               amount,
             },
             ...s.transactions,

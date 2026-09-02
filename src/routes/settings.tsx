@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { MessageCircle, RotateCcw, Store, Wallet, Megaphone, LayoutDashboard } from "lucide-react";
+import { ChevronRight, MessageCircle, RotateCcw, Store, Wallet, Megaphone, LayoutDashboard } from "lucide-react";
 import { AppShell } from "@/components/BottomTabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useDemo } from "@/lib/prototype-state";
 import { BUSINESS_TYPES, supportWhatsApp } from "@/data/mockData";
+import { strings } from "@/data/strings";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -123,6 +124,15 @@ function SettingsPage() {
           />
         </div>
       </div>
+
+      <Link
+        to="/pricing"
+        search={{ from: "settings" as const }}
+        className="flex items-center justify-between gap-3 rounded-3xl border border-border bg-card p-5 text-base font-semibold text-foreground"
+      >
+        {strings.settingsRow.pricing}
+        <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+      </Link>
 
       <div className="rounded-3xl border border-border bg-card p-5">
         <p className="font-semibold text-foreground">How this works</p>
