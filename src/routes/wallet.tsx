@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, ArrowRight } from "lucide-react";
 import { AppShell } from "@/components/BottomTabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,39 +12,33 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useDemo } from "@/lib/prototype-state";
-import { DAILY_SPEND, TOPUP_PRESETS } from "@/data/mockData";
+import { PACKAGES, euro, tierForAmount } from "@/data/mockData";
+import { strings } from "@/data/strings";
 
 export const Route = createFileRoute("/wallet")({
   head: () => ({
     meta: [
-      { title: "Your credit — AdBoost" },
-      {
-        name: "description",
-        content: "Add credit for your local ads and see exactly how many days it lasts.",
-      },
-      { property: "og:title", content: "Your credit — AdBoost" },
-      {
-        property: "og:description",
-        content: "Add credit and see exactly how many days of ads it pays for.",
-      },
+      { title: strings.adPackage.metaTitle },
+      { name: "description", content: strings.adPackage.metaDescription },
+      { property: "og:title", content: strings.adPackage.metaTitle },
+      { property: "og:description", content: strings.adPackage.metaDescription },
     ],
   }),
-  component: WalletPage,
+  component: PackagePage,
 });
 
-function daysLabel(amount: number) {
-  const days = Math.floor(amount / DAILY_SPEND);
-  if (days >= 30) {
-    const months = Math.floor(days / 30);
-    return months === 1 && days < 45 ? "1 month of ads" : `${days} days of ads`;
-  }
-  return `${days} ${days === 1 ? "day" : "days"} of ads`;
+const t = strings.adPackage;
+
+function tierLine(amount: number) {
+  const tier = tierForAmount(amount);
+  return `${tier.name} · ${euro(tier.monthlyFee)} ${strings.pricing.perMonth}`;
 }
 
-function WalletPage() {
+function PackagePage() {
   const { state, hydrated, topUp } = useDemo();
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<number>(TOPUP_PRESETS[0] ?? 200);
+  const preselected = PACKAGES.find((p) => p.id === state.selectedPackage);
+  const [selected, setSelected] = useState<number>(preselected?.adBudget ?? PACKAGES[0]!.adBudget);
   const [custom, setCustom] = useState("");
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
@@ -53,55 +47,77 @@ function WalletPage() {
     if (hydrated && !state.onboarded) navigate({ to: "/" });
   }, [hydrated, state.onboarded, navigate]);
 
+  useEffect(() => {
+    if (preselected) setSelected(preselected.adBudget);
+  }, [preselected]);
+
   const customValue = Number(custom) || 0;
   const amount = custom ? customValue : selected;
-  const valid = amount >= DAILY_SPEND;
+  const valid = amount > 0;
 
   return (
-    <AppShell title="Your credit">
+    <AppShell title={t.title}>
+      <Link
+        to="/pricing"
+        search={{ from: "settings" as const }}
+        className="inline-flex items-center gap-2 text-base font-medium text-primary underline"
+      >
+        {t.seeAllPackages} <ArrowRight className="h-4 w-4" />
+      </Link>
+
       <div className="rounded-3xl bg-primary p-6 text-primary-foreground">
-        <p className="text-sm opacity-90">Credit available</p>
-        <p className="mt-1 text-4xl font-bold tracking-tight">€{state.balance}</p>
+        <p className="text-sm opacity-90">{t.leftInPackage}</p>
+        <p className="mt-1 text-4xl font-bold tabular-nums tracking-tight">{euro(state.balance)}</p>
         <p className="mt-2 text-sm opacity-90">
-          {state.balance > 0
-            ? `That's ${daysLabel(state.balance)} at €${DAILY_SPEND} a day.`
-            : `Ads cost €${DAILY_SPEND} a day. Add credit whenever you're ready.`}
+          {state.balance > 0 ? t.activeNote : t.emptyNote}
         </p>
       </div>
 
       <div className="space-y-3">
-        <p className="font-semibold text-foreground">Add credit</p>
-        {TOPUP_PRESETS.map((p) => {
-          const active = !custom && selected === p;
+        <p className="font-semibold text-foreground">{t.chooseHeading}</p>
+        {PACKAGES.map((p) => {
+          const active = !custom && selected === p.adBudget;
           return (
             <button
-              key={p}
+              key={p.id}
               onClick={() => {
                 setCustom("");
-                setSelected(p);
+                setSelected(p.adBudget);
               }}
-              className={`grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-3xl border-2 px-6 py-5 text-left transition-colors ${
+              className={`w-full rounded-3xl border-2 px-6 py-5 text-left transition-colors ${
                 active ? "border-primary bg-primary/5" : "border-border bg-card"
               }`}
             >
-              <span className="text-xl font-bold text-foreground">€{p}</span>
-              <span className="shrink-0 text-sm text-muted-foreground">{daysLabel(p)}</span>
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+                <span className="text-xl font-bold tabular-nums text-foreground">
+                  {euro(p.adBudget)}
+                </span>
+                <span className="shrink-0 text-sm text-muted-foreground">
+                  {p.name} · {euro(p.monthlyFee)} {strings.pricing.perMonth}
+                </span>
+              </div>
+              <p className="mt-2 text-sm tabular-nums text-muted-foreground">
+                {t.reachPrefix} {p.reachLow.toLocaleString("en-US")}–
+                {p.reachHigh.toLocaleString("en-US")} {t.reachSuffix}
+              </p>
             </button>
           );
         })}
 
+        <p className="px-1 text-xs text-muted-foreground">{t.estimateNote}</p>
+
         <div className="rounded-3xl border border-border bg-card p-5">
-          <label className="text-sm font-medium text-foreground">Or your own amount</label>
+          <label className="text-base font-medium text-foreground">{t.customLabel}</label>
           <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
             <Input
               inputMode="numeric"
               value={custom}
               onChange={(e) => setCustom(e.target.value.replace(/[^0-9]/g, ""))}
-              placeholder="€ amount"
+              placeholder={t.customPlaceholder}
               className="h-14 rounded-2xl text-base"
             />
             <span className="shrink-0 text-sm text-muted-foreground">
-              {customValue >= DAILY_SPEND ? daysLabel(customValue) : "—"}
+              {customValue > 0 ? tierLine(customValue) : "—"}
             </span>
           </div>
         </div>
@@ -116,33 +132,33 @@ function WalletPage() {
           setOpen(true);
         }}
       >
-        Top up €{amount || 0}
+        {t.payButton(euro(amount || 0))}
       </Button>
 
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-        Your credit is only used to run your ads. Stop whenever you like and whatever is
-        left stays yours.
+        {t.ownership}
       </p>
 
       <div className="rounded-3xl border border-border bg-card">
-        <p className="px-5 pt-5 font-semibold text-foreground">History</p>
+        <p className="px-5 pt-5 font-semibold text-foreground">{t.historyTitle}</p>
         <div className="mt-2 divide-y divide-border">
-          {state.transactions.map((t) => (
+          {state.transactions.map((tx) => (
             <div
-              key={t.id}
+              key={tx.id}
               className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-4"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-foreground">{t.label}</p>
-                <p className="text-xs text-muted-foreground">{t.date}</p>
+                <p className="truncate text-sm font-medium text-foreground">{tx.label}</p>
+                <p className="text-xs text-muted-foreground">{tx.date}</p>
               </div>
               <span
-                className={`shrink-0 text-sm font-semibold ${
-                  t.amount > 0 ? "text-primary" : "text-foreground"
+                className={`shrink-0 text-sm font-semibold tabular-nums ${
+                  tx.amount > 0 ? "text-primary" : "text-foreground"
                 }`}
               >
-                {t.amount > 0 ? "+" : "−"}€{Math.abs(t.amount)}
+                {tx.amount > 0 ? "+" : "−"}
+                {euro(Math.abs(tx.amount))}
               </span>
             </div>
           ))}
@@ -152,17 +168,21 @@ function WalletPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="rounded-3xl">
           <DialogHeader>
-            <DialogTitle>{done ? "Credit added" : `Add €${amount} credit`}</DialogTitle>
+            <DialogTitle>
+              {done ? t.dialogTitleDone : t.dialogTitle(euro(amount))}
+            </DialogTitle>
             <DialogDescription>
-              {done
-                ? "Your ads can now run. Nothing was charged — this is a demo."
-                : "This is a demo. No money is charged and no card details are needed."}
+              {done ? t.dialogDescriptionDone : t.dialogDescription}
             </DialogDescription>
           </DialogHeader>
           {!done ? (
             <div className="space-y-3">
               <div className="rounded-2xl bg-secondary p-4 text-sm text-muted-foreground">
-                €{amount} covers {daysLabel(amount)} at €{DAILY_SPEND} a day.
+                {t.dialogSummary(
+                  euro(amount),
+                  tierForAmount(amount).name,
+                  euro(tierForAmount(amount).monthlyFee),
+                )}
               </div>
               <Button
                 className="h-14 w-full rounded-2xl text-base font-semibold"
@@ -177,7 +197,7 @@ function WalletPage() {
                   }
                 }}
               >
-                Simulate payment
+                {t.simulate}
               </Button>
             </div>
           ) : (
@@ -188,7 +208,7 @@ function WalletPage() {
                 navigate({ to: "/dashboard" });
               }}
             >
-              See my results
+              {t.seeResults}
             </Button>
           )}
         </DialogContent>
